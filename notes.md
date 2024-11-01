@@ -20,14 +20,17 @@ The Angular CLI is a command-line interface tool that you use to initialize, dev
 
 ## What are the four files generally created by the CLI when creating a Component?
 
-<name-of-component>.component.html
-<name-of-component>.component.scss
-<name-of-component>.component.spec.ts
-<name-of-component>.component.ts
+name-of-component.component.html
+
+name-of-component.component.scss
+
+name-of-component.component.spec.ts
+
+name-of-component.component.ts
 
 ## What are Angular Modules?
 
-** Note: since Angular 14 standalone components have been part of the Angular ecosystem. These are intended to replace the purpose of ngModule. Nonetheless, it’s worth knowing what Angular modules do and how they fit into the Angular architecture. **
+**Note: since Angular 14 standalone components have been part of the Angular ecosystem. These are intended to replace the purpose of ngModule. Nonetheless, it’s worth knowing what Angular modules do and how they fit into the Angular architecture.**
 
 ## @NgModule()
 
@@ -71,7 +74,7 @@ Taking the button example, you may have a form that you do not wish to submit un
 
 In the class statement of a component, you might set a property that looks like this:
 
-private isValid = false;
+`private isValid = false;`
 
 Then in your form, you would have a button component that looks like this:
 
@@ -92,9 +95,11 @@ An example in the view template would be:
 
 `<button (click)=”doSomething($event)”>Click</button>`
 
-Class and Style Binding
+### Class and Style Binding
 
-### Pipes
+![Table for class and style binding](./images/classAndStyleBinding.png "Title")
+
+## Pipes
 
 Pipes are usually used to transform values in the view template. There are some built-in pipes that Angular, by default, provides which you can make use of:
 
@@ -134,19 +139,19 @@ An example:
 <button type="button" (click)="callPhone(phone.value)">Call</button>
 ```
 
-Structural directives such as *ngIf and *ngFor, or <ng-template> declarations create a new nested template scope, much like JavaScript's control flow statements like if and for create new lexical scopes.
+Structural directives such as *ngIf and *ngFor, or >ng-template< declarations create a new nested template scope, much like JavaScript's control flow statements like if and for create new lexical scopes.
 
 This example works:
 
 ```
 <input #ref1 type="text" [(ngModel)]="firstExample" />
-<span \*ngIf="true">Value: {{ ref1.value }}</span>
+<span *ngIf="true">Value: {{ ref1.value }}</span>
 ```
 
 This one does not:
 
 ```
-<input \*ngIf="true" #ref2 type="text" [(ngModel)]="secondExample" />
+<input *ngIf="true" #ref2 type="text" [(ngModel)]="secondExample" />
 <span>Value: {{ ref2?.value }}</span> <!-- doesn't work -->
 ```
 
@@ -264,7 +269,7 @@ providedIn: ‘root’
 }
 ```
 
-By including this object, it makes the service available throughout your application. When you provide the service at the root level, Angular creates a single, shared instance of the service and injects it into any class that asks for it. If you don’t include it, you will usually need to add the service in the providers array for a component/directive/service etc.
+    By including this object, it makes the service available throughout your application. When you provide the service at the root level, Angular creates a single, shared instance of the service and injects it into any class that asks for it. If you don’t include it, you will usually need to add the service in the providers array for a component/directive/service etc.
 
 2.  Declare it in the class constructor of the component (using the example in the para above, this would be the grandchild component) that needs to make use of it. This is the most common way to inject a dependency. An alternative is to use the inject method which looks like this:
 
@@ -290,7 +295,7 @@ It’s important to note that there are two types of forms in Angular: template 
 
 ### Template-Driven Forms
 
-There are some core features of a template-driven form that should be noted. First, the FormsModule must be imported into the TS file for the relevant component. The second feature is to add some stuff to the <form> tag: a template reference variable that = ngForm (e.g. #signUpForm=”ngForm”); the ngSubmit directive ((ngSubmit)=”someFunction()”). Third, you will want to declare a property in the TS file – usually an object – which will define the shape of the data of your form. For example, if you were dealing with a sign up form, you could define a variable called ‘user’ and have it take the form of:
+There are some core features of a template-driven form that should be noted. First, the FormsModule must be imported into the TS file for the relevant component. The second feature is to add some stuff to the `<form>` tag: a template reference variable that = ngForm (e.g. #signUpForm=”ngForm”); the ngSubmit directive ((ngSubmit)=”someFunction()”). Third, you will want to declare a property in the TS file – usually an object – which will define the shape of the data of your form. For example, if you were dealing with a sign up form, you could define a variable called ‘user’ and have it take the form of:
 
 ```
 {
@@ -300,7 +305,7 @@ password: ‘’
 }
 ```
 
-The next thing to after this is to use ngModel. For each <input/> in your form, you would have an [(ngModel)]=”” (e.g. [(ngModel)]=”user.name”). Note as well that each input should have a ‘name’ property which is identical to the key in your property (e.g. <input name=”email” /> for the input tracking user.email). The next thing is a @ViewChild which would take the name of your form. Using the example above, your @ViewChild could look like:
+The next thing to after this is to use ngModel. For each `<input/>` in your form, you would have an [(ngModel)]=”” (e.g. [(ngModel)]=”user.name”). Note as well that each input should have a ‘name’ property which is identical to the key in your property (e.g. <input name=”email” /> for the input tracking user.email). The next thing is a @ViewChild which would take the name of your form. Using the example above, your @ViewChild could look like:
 
 `@ViewChild(‘signUpForm’) form: NgForm;`
 
@@ -328,7 +333,7 @@ There are some key methods and properties which you can use on a reactive form:
 
 `this.form.valueChanges.pipe…..`
 
-2. setValue. This allows you to set the value of the whole form (it does not allow you to partially update the form. An example on how to use the function would be:
+2. setValue. This allows you to set the value of the whole form (it does not allow you to partially update the form). An example on how to use the function would be:
    `this.form.setValue({….})`
 
 3. patchValue. This is the function you would call if you only want to partially update the value of a form.
@@ -345,7 +350,7 @@ Probably wiser to use reactive forms in most cases. There are multiple reasons f
 5. Reactive forms use an Observable-based API. This means that the form and all of its controls can be viewed as a continuous stream of values – which can be processed and subscribed to using RxJS operators (e.g. map and filter). This can be seen as advantageous because you can pipe (from the valueChanges observable) and process (e.g. using map/filter/debounceTime etc.) what the user does and only update the form’s value when what the user does is valid.
 6. Easier to write a custom validator rule.
 
-## HTTP Requests (HTTP Client)
+## Basic HTTP Requests (HTTP Client)
 
 ## Services
 
@@ -374,9 +379,9 @@ Example of content projection
 </div>
 ```
 
-In this HTML template above, the HTML that will get projected inside the addOn component (app-add-on) is the mat-checkbox. To ensure it’s rendered properly and precisely in the addOn component, all you have to do is go to the HTML file for the addOn component and add the tag <ng-content /> where you want the HTML to be displayed.
+In this HTML template above, the HTML that will get projected inside the addOn component (app-add-on) is the mat-checkbox. To ensure it’s rendered properly and precisely in the addOn component, all you have to do is go to the HTML file for the addOn component and add the tag `<ng-content />` where you want the HTML to be displayed.
 
-## Routing
+## Basic Routing
 
 ### Defining routes in your application
 
@@ -389,9 +394,11 @@ Ensuring RouterOutlet is in the app component
 
 Go to the TS file and ensure that RouterOutlet is in the imports array inside the @Component decorator. Once that’s done, go the HTML file and ensure that there is a:
 
-<router-outlet></router-outlet>
+`<router-outlet></router-outlet>`
 
 In the file.
+
+## Routing Interceptors
 
 ## Angular Signals
 
