@@ -352,7 +352,67 @@ Probably wiser to use reactive forms in most cases. There are multiple reasons f
 
 ## Basic HTTP Requests (HTTP Client)
 
+As of v18 of Angular, to make some basic HTTP requests there are some pre-requisite steps that must be taken:
+
+1. Go to the app.config.ts file and in the providers array (of the application config) insert the provideHttpClient().
+2. Next, you need to inject the HttpClient service into your relevant service/component etc.
+
+Note that making a HTTP request is quite simple in Angular. Here is an example of how you might write some code which executes a HTTP request (this specific example is from a service):
+
+```
+constructor(private http: HttpClient) {}
+
+getFootballRecords(pageNumber: number) {
+    return this.http
+      .get<FootballRecordApiResponse>(
+        `http://localhost:5000/api/football?pageNumber=${pageNumber}`
+      )
+      .pipe(
+        tap((response) => this.updateTotalPages(response.total_pages)),
+        map((response) => response.data)
+      );
+  }
+
+```
+
+From this code snippet above, there are some things that should be noted. First, that where it says 'get' is where you normally put the type of HTTP request that you wish to make (e.g. get, post, delete etc.). Second, that where the url is specified actually has 2 possible parameters (where the second is optional) - the second after the url is an options object which differs depending on the type of HTTP request that is made. Third, based on the fact that the pipe operator has been included, it should be concluded that a HTTP request in Angular returns an Observable.
+
+## HTTP Interceptors
+
+HTTP interceptors are used for a variety of tasks in an Angular application such as:
+
+1. Applying global HTTP headers to outgoing requests
+2. Caching responses for a certain period of time
+3. Customising the parsing of responses
+
+Think of HTTP interceptors as middleware in your application. This means an Interceptor takes two parameters:
+
+1. HTTPRequest (e.g. get, post etc.)
+2. A next parameter (of interface HttpHand)
+
+HTTP Interceptors are integrated into an Angular app by going to the app.config.ts and inside the provideHttpClient() using the withInterceptors function. An example is as follows:
+
+```
+provideHttpClient(
+    withInterceptors([loggingInterceptor, cachingInterceptor]),
+  )
+```
+
 ## Services
+
+Services are one of the fundamental building blocks of Angular. They're used throughout an Angular application for multiple reasons:
+
+1. Avoid repeating code.
+2. Avoid burdening components/directives/other services with too many responsbilities. In short, a service will have a narrow, well-defined purpose and perform that purpose well.
+3. Sharing state amongst various components and also avoiding prop drilling.
+
+### Sharing state
+
+This point deserves particular attention because you can inject a single intance of a service into your application which is shared by a number of components/directives/services. This is achieved by making sure your @Injectable decorator contains an object that has this property and value:
+
+`{providedIn: 'root'}`
+
+Alternatively, let's imagine you have an application with a bunch of widgets on the page that all need their own instance of a particular service. In this case, you simply removed the providedIn property from the @Injectable() decorator to ensure this happens.
 
 ## Content Projection (with ng-content)
 
@@ -398,7 +458,71 @@ Go to the TS file and ensure that RouterOutlet is in the imports array inside th
 
 In the file.
 
-## Routing Interceptors
+## Router Params (accessing them)
+
+Accessing router params can be useful in certain circumstances. This section includes snippets of another codebase which uses this feature to achieve some functionality.
+
+### Setting up a dynamic route
+
+Router params are only relevant when you have set up dynamic routes in your application. Here is an example of a dynamic route:
+
+```
+export const routes: Routes = [
+  { path: 'countries/:country', component: CountryDetailsPageComponent },
+];
+```
+
+From this snippet above, the dynamic part of the url is the fragment '/:country' - the value of '/:country' could be 'france', for example, where the url would end '.../countries/france'. This particular fragment of the url would be accessible to any component that is loaded when that fragment appears in the url.
+
+### Accessing Router Params
+
+The CountryDetailsPageComponent accesses the country name url fragment by executing the following code:
+
+```
+  countrySubscription!: Subscription;
+
+  constructor(
+    private _location: Location,
+    private activatedRoute: ActivatedRoute,
+    private countryDetails: CountryDetailsService
+  ) {}
+
+  ngOnInit(): void {
+    this.countrySubscription = this.activatedRoute.paramMap.subscribe(
+      (params: ParamMap) => {
+        const countryName = params.get('country');
+        const country = countries.find(
+          (country) => country.name.common === countryName
+        );
+        country && this.countryDetails.dispatch(country);
+      }
+    );
+  }
+```
+
+The first thing to note from this code snippet above is the use of the ActivatedRoute service - without this service you cannot access the value of a url fragment. The ActivatedRoute service has an observable property called paramMap which allows you to subscribe to and access the url fragment. Note where it says `params.get('country');` - the 'country' matches the name ':country' in the original route. Something else to note - which is quite convenient - is that even if the value of the url fragment has to be encoded due to the inclusion of a space, this will not appear when you access it via the paramMap. For example, imagine if the country in the snippet above took the value of 'United Kingdom' - the actual url would end 'united%20kingdom'. However, when you access this url fragment, it will be 'United Kingdom' without the url encoding.
+
+## Route Guards
+
+## Change Detection
+
+Change detection is the mechanism used by Angular to see if any application state has changed and whether the DOM needs to be updated.
+
+The default change detection strategy for a component is simply 'default'.
+
+There are occasions where the default change detection strategy runs too frequently and has an adverse impact on performance. In this instance, it may be appropriate to change the change detection strategy to onPush.
+
+To apply this new change detection strategy, go to the relevant @Component decorator whose change detection strategy you wish to change and add the following:
+
+`{..., changeDetection: ChangeDetectionStrategy.OnPush}`
+
+By adding this property and value to a component's decorator, the change detection mechanism will only run in certain instances:
+
+1. When a component's input changes.
+2. When a component emits an event.
+3. When an observable property fires an event.
+
+Otherwise the change detection mechanism will not run.
 
 ## Angular Signals
 
